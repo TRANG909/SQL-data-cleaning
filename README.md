@@ -5,6 +5,8 @@ A README.md file in GitHub is a Markdown file that serves as the introductory an
 
 Sql _ cleamining
 
+## SELECT * FROM club_member_info LIMIT 10
+
 
 |full_name|age|martial_status|email|phone|full_address|job_title|membership_date|
 |---------|---|--------------|-----|-----|------------|---------|---------------|
