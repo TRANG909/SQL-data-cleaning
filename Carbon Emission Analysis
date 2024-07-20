@@ -761,6 +761,61 @@ Sản phẩm đóng góp nhiều nhất vào lượng khí cardbon :Wind Turbine
 | Germany      | Daimler AG                              | Mercedes-Benz S-Class (S 500)                                                                                                      | Automobiles & Components           | 85000                  | 
 | Germany      | Daimler AG                              | Mercedes-Benz SL (SL 350)                                                                                                          | Automobiles & Components           | 72000                  | 
 
+2.
+
+with new_table as (
+  SELECT product_emissions.id
+ , company_id
+  , country_id
+  , industry_group_id
+  ,	year
+  , product_name
+  , weight_kg
+  , carbon_footprint_pcf
+  , upstream_percent_total_pcf
+  , operations_percent_total_pcf
+  ,downstream_percent_total_pcf
+  
+  , CAST(CASE WHEN upstream_percent_total_pcf LIKE 'N/a%' 
+		 			THEN '0' 
+		 		ELSE upstream_percent_total_pcf 
+		 END 
+	AS float) AS upstream_percent_total_pcf_revised 
+  
+    , CAST(CASE WHEN operations_percent_total_pcf LIKE 'N/a%' 
+		 			THEN '0' 
+		 		ELSE operations_percent_total_pcf 
+		 END 
+	AS float) AS operations_percent_total_pcf_revised 
+  
+   , CAST(CASE WHEN downstream_percent_total_pcf LIKE 'N/a%' 
+		 			THEN '0' 
+		 		ELSE downstream_percent_total_pcf
+		 END 
+	AS float) AS downstream_percent_total_pcf_revised 
+  ,industry_groups.industry_group as industry_name
+  ,companies.company_name
+  ,countries.country_name
+  FROM product_emissions
+  Left join industry_groups on industry_groups.id = product_emissions.industry_group_id
+  Left join companies on companies.id = product_emissions.company_id
+  Left join countries on countries.id = product_emissions.country_id
+  )
+  /*, new_table2 as (
+	
+	)
+  
+  SELECT * 
+  FROM new_table
+  */
+  
+ /* Select country_name,company_name,product_name, industry_name,sum(carbon_footprint_pcf)
+  As total_carbon_footprint
+  From new_table
+  Group by country_name,company_name,product_name, industry_name
+  ORDER BY carbon_footprint_pcf DESC
+  Limit 10
+  */
 1.Những sản phẩm nào đóng góp nhiều nhất vào lượng khí thải carbon?
 2.Các nhóm ngành của các sản phẩm này là gì?
 3.Các ngành công nghiệp đóng góp nhiều nhất vào lượng khí thải carbon là gì?
