@@ -681,3 +681,84 @@ country_id | company_id | product_name                                          
 | 9          | 78         | Ingenico terminals                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1                        | 
 | 27         | 81         | Complete catalyst system for diesel-powered passenger car exhaust                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1                        | 
 | 27         | 81         | Three-way Catalyst for gasoline-powered passenger car exhaust                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1                        | 
+
+Tạo bảng New_Table, chuyển cột upstream_percent_total_pcf, operations_percent_total_pcf, downstream_percent_total_pcf
+về dạng số thập phân
+
+with new_table as (
+  SELECT id
+  , company_id
+  , country_id
+  , industry_group_id
+  ,	year
+  , product_name
+  , weight_kg
+  , carbon_footprint_pcf
+  , upstream_percent_total_pcf
+  , operations_percent_total_pcf
+  ,downstream_percent_total_pcf
+  
+  , CAST(CASE WHEN upstream_percent_total_pcf LIKE 'N/a%' 
+		 			THEN '0' 
+		 		ELSE upstream_percent_total_pcf 
+		 END 
+	AS float) AS upstream_percent_total_pcf_revised 
+  
+    , CAST(CASE WHEN operations_percent_total_pcf LIKE 'N/a%' 
+		 			THEN '0' 
+		 		ELSE operations_percent_total_pcf 
+		 END 
+	AS float) AS operations_percent_total_pcf_revised 
+  
+   , CAST(CASE WHEN downstream_percent_total_pcf LIKE 'N/a%' 
+		 			THEN '0' 
+		 		ELSE downstream_percent_total_pcf
+		 END 
+	AS float) AS downstream_percent_total_pcf_revised 
+  
+  FROM product_emissions
+  )
+  
+  SELECT * 
+  FROM new_table
+
+1. Những sản phẩm đóng góp nhiều nhất vào lượng khí thải carbon.
+
+Select country_id,company_id,product_name,sum(carbon_footprint_pcf)
+  As total_carbon_footprint
+  From new_table
+  Group by country_id,company_id,product_name
+  ORDER BY carbon_footprint_pcf DESC
+Limit 10
+
+
+| country_id | company_id | product_name                                                                                                                       | total_carbon_footprint | 
+| ---------: | ---------: | ---------------------------------------------------------------------------------------------------------------------------------: | ---------------------: | 
+| 23         | 10         | Wind Turbine G128 5 Megawats                                                                                                       | 3718044                | 
+| 23         | 10         | Wind Turbine G132 5 Megawats                                                                                                       | 3276187                | 
+| 23         | 10         | Wind Turbine G114 2 Megawats                                                                                                       | 1532608                | 
+| 23         | 10         | Wind Turbine G90 2 Megawats                                                                                                        | 1251625                | 
+| 16         | 11         | Land Cruiser Prado. FJ Cruiser. Dyna trucks. Toyoace.IMV def unit.                                                                 | 191687                 | 
+| 18         | 34         | Retaining wall structure with a main wall (sheet pile): 136 tonnes of steel sheet piles and 4 tonnes of tierods per 100 meter wall | 167000                 | 
+| 16         | 17         | TCDE                                                                                                                               | 198150                 | 
+| 10         | 61         | Mercedes-Benz GLE (GLE 500 4MATIC)                                                                                                 | 91000                  | 
+| 10         | 61         | Mercedes-Benz S-Class (S 500)                                                                                                      | 85000                  | 
+| 10         | 61         | Mercedes-Benz SL (SL 350)  
+
+Sản phẩm đóng góp nhiều nhất vào lượng khí cardbon :Wind Turbine G128 5 Megawats With 3718044  lượng carbon 
+
+
+| country_name | company_name                            | product_name                                                                                                                       | industry_name                      | total_carbon_footprint | 
+| -----------: | --------------------------------------: | ---------------------------------------------------------------------------------------------------------------------------------: | ---------------------------------: | ---------------------: | 
+| Spain        | "Gamesa Corporación Tecnológica, S.A."  | Wind Turbine G128 5 Megawats                                                                                                       | Electrical Equipment and Machinery | 3718044                | 
+| Spain        | "Gamesa Corporación Tecnológica, S.A."  | Wind Turbine G132 5 Megawats                                                                                                       | Electrical Equipment and Machinery | 3276187                | 
+| Spain        | "Gamesa Corporación Tecnológica, S.A."  | Wind Turbine G114 2 Megawats                                                                                                       | Electrical Equipment and Machinery | 1532608                | 
+| Spain        | "Gamesa Corporación Tecnológica, S.A."  | Wind Turbine G90 2 Megawats                                                                                                        | Electrical Equipment and Machinery | 1251625                | 
+| Japan        | "Hino Motors, Ltd."                     | Land Cruiser Prado. FJ Cruiser. Dyna trucks. Toyoace.IMV def unit.                                                                 | Automobiles & Components           | 191687                 | 
+| Luxembourg   | Arcelor Mittal                          | Retaining wall structure with a main wall (sheet pile): 136 tonnes of steel sheet piles and 4 tonnes of tierods per 100 meter wall | Materials                          | 167000                 | 
+| Japan        | "Mitsubishi Gas Chemical Company, Inc." | TCDE                                                                                                                               | Materials                          | 198150                 | 
+| Germany      | Daimler AG                              | Mercedes-Benz GLE (GLE 500 4MATIC)                                                                                                 | Automobiles & Components           | 91000                  | 
+| Germany      | Daimler AG                              | Mercedes-Benz S-Class (S 500)                                                                                                      | Automobiles & Components           | 85000                  | 
+| Germany      | Daimler AG                              | Mercedes-Benz SL (SL 350)                                                                                                          | Automobiles & Components           | 72000                  | 
+
+  
