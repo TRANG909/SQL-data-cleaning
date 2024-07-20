@@ -1,1 +1,5 @@
-
+Select Count(id),Count(distinct Id) 
+from product_emissions;
+| Count(id) | Count(distinct Id) | 
+| --------: | -----------------: | 
+| 1037      | 866                | 
